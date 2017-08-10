@@ -1,0 +1,3 @@
+include ':app'
+include ':thread-isolate'
+include ':thread-isolate-compiler'
