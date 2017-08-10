@@ -13,7 +13,7 @@ import java.util.concurrent.Executor;
 
 import javax.lang.model.element.Modifier;
 
-import static com.tierable.threadisolate.ThreadIsolateCompiler.CLASS_NAME_EXECUTOR_INVOKING_IMPLEMENTATION;
+import static com.tierable.threadisolate.ThreadIsolateProcessor.CLASS_NAME_EXECUTOR_INVOKING_IMPLEMENTATION;
 
 
 /**
