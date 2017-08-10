@@ -14,6 +14,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
  */
 @Retention(SOURCE)
 @Target(TYPE)
-public @interface InvocationsThreadEnforced {
+public @interface InvokeMethodsOnExecutor {
     boolean useWeakReference() default true;
 }

@@ -8,7 +8,7 @@ import java.util.concurrent.Executor;
  * @author Aniruddh Fichadia
  * @date 2017-08-10
  */
-public interface ThreadEnforcedImplementation<RealImplementationT> {
+public interface ExecutorInvokingImplementation<RealImplementationT> {
     Executor getExecutor();
 
 

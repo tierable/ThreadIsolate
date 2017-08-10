@@ -5,7 +5,7 @@ package com.tierable.threadisolate;
  * @author Aniruddh Fichadia
  * @date 2017-08-10
  */
-@InvocationsThreadEnforced(useWeakReference = false)
+@InvokeMethodsOnExecutor(useWeakReference = false)
 public interface TestInterfaceStrongReference {
     int returnsValue();
 
