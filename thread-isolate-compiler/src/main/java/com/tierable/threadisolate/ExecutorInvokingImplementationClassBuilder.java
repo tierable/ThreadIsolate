@@ -7,11 +7,13 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.util.concurrent.Executor;
 
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 
 import static com.tierable.threadisolate.ThreadIsolateProcessor.CLASS_NAME_EXECUTOR_INVOKING_IMPLEMENTATION;
 
@@ -38,35 +40,37 @@ public abstract class ExecutorInvokingImplementationClassBuilder {
     protected static final String PARAM_NAME_SET_REAL_IMPLEMENTATION_REAL_IMPLEMENTATION = "realImplementation";
 
     protected final TypeSpec.Builder typeBuilder;
-    protected final ClassName        referenceClassClassName;
+    protected final TypeElement      referenceClassElement;
+    protected final TypeName         referenceClassTypeName;
 
 
     public static ExecutorInvokingImplementationClassBuilder get(TypeSpec.Builder typeBuilder,
-                                                                 ClassName referenceClassClassName,
+                                                                 TypeElement referenceClassElement,
                                                                  boolean useWeakReference) {
         if (useWeakReference) {
             return new ExecutorInvokingImplementationClassBuilderWeakReference(
-                    typeBuilder, referenceClassClassName
+                    typeBuilder, referenceClassElement
             );
         } else {
             return new ExecutorInvokingImplementationClassBuilderStrongReference(
-                    typeBuilder, referenceClassClassName
+                    typeBuilder, referenceClassElement
             );
         }
     }
 
 
     protected ExecutorInvokingImplementationClassBuilder(TypeSpec.Builder typeBuilder,
-                                                         ClassName referenceClassClassName) {
+                                                         TypeElement referenceClassElement) {
         this.typeBuilder = typeBuilder;
-        this.referenceClassClassName = referenceClassClassName;
+        this.referenceClassElement = referenceClassElement;
+        this.referenceClassTypeName = TypeName.get(referenceClassElement.asType());
     }
 
 
     public ExecutorInvokingImplementationClassBuilder applyClassDefinition() {
         typeBuilder.addSuperinterface(
                 ParameterizedTypeName.get(CLASS_NAME_EXECUTOR_INVOKING_IMPLEMENTATION,
-                                          referenceClassClassName)
+                                          referenceClassTypeName)
         );
 
         return this;

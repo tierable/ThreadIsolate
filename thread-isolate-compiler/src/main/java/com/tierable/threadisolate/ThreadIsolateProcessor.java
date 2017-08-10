@@ -103,6 +103,9 @@ public class ThreadIsolateProcessor
             }
 
             if (ElementKind.INTERFACE.equals(element.getKind())) {
+                TypeElement elementAsTypeElement = (TypeElement) element;
+
+
                 TypeElement enclosingElement = findEnclosingTypeElement(element);
 
                 String packageName = getPackage(enclosingElement).getQualifiedName().toString();
@@ -125,8 +128,7 @@ public class ThreadIsolateProcessor
                 TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(generatedClassName)
                                                        .addModifiers(Modifier.PUBLIC);
 
-
-                ExecutorInvokingImplementationClassBuilder.get(typeBuilder, referenceClass,
+                ExecutorInvokingImplementationClassBuilder.get(typeBuilder, elementAsTypeElement,
                                                                useWeakReference)
                                                           .applyClassDefinition()
                                                           .applyFields()
@@ -134,7 +136,7 @@ public class ThreadIsolateProcessor
 
 
                 ReferenceClassClassBuilder referenceClassClassBuilder = new ReferenceClassClassBuilder(
-                        typeBuilder, referenceClass, element, elementUtils
+                        typeBuilder, elementAsTypeElement, elementUtils, typeUtils
                 );
                 referenceClassClassBuilder.applyClassDefinition()
                                           .applyFields()

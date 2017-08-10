@@ -1,7 +1,6 @@
 package com.tierable.threadisolate;
 
 
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
@@ -9,6 +8,7 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 
 
 /**
@@ -18,15 +18,15 @@ import javax.lang.model.element.Modifier;
 public class ExecutorInvokingImplementationClassBuilderStrongReference
         extends ExecutorInvokingImplementationClassBuilder {
     public ExecutorInvokingImplementationClassBuilderStrongReference(TypeSpec.Builder typeBuilder,
-                                                                     ClassName referenceClass) {
-        super(typeBuilder, referenceClass);
+                                                                     TypeElement referenceClassElement) {
+        super(typeBuilder, referenceClassElement);
     }
 
 
     @Override
     protected void createFieldRealImplementation() {
         typeBuilder.addField(
-                FieldSpec.builder(referenceClassClassName, FIELD_NAME_REAL_IMPLEMENTATION,
+                FieldSpec.builder(referenceClassTypeName, FIELD_NAME_REAL_IMPLEMENTATION,
                                   Modifier.PRIVATE)
                          .initializer(CodeBlock.of("null"))
                          .build()
@@ -40,7 +40,7 @@ public class ExecutorInvokingImplementationClassBuilderStrongReference
                 MethodSpec.methodBuilder(METHOD_NAME_GET_REAL_IMPLEMENTATION)
                           .addAnnotation(Override.class)
                           .addModifiers(Modifier.PUBLIC)
-                          .returns(referenceClassClassName)
+                          .returns(referenceClassTypeName)
                           .addCode(
                                   CodeBlock.builder()
                                            .addStatement("return $L",
@@ -58,7 +58,7 @@ public class ExecutorInvokingImplementationClassBuilderStrongReference
                           .addAnnotation(Override.class)
                           .addModifiers(Modifier.PUBLIC)
                           .addParameter(
-                                  ParameterSpec.builder(referenceClassClassName,
+                                  ParameterSpec.builder(referenceClassTypeName,
                                                         PARAM_NAME_SET_REAL_IMPLEMENTATION_REAL_IMPLEMENTATION)
                                                .build()
                           )

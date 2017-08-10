@@ -7,6 +7,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -18,11 +19,13 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 
 import static com.tierable.threadisolate.ExecutorInvokingImplementationClassBuilder.METHOD_NAME_GET_EXECUTOR;
 import static com.tierable.threadisolate.ExecutorInvokingImplementationClassBuilder.METHOD_NAME_GET_REAL_IMPLEMENTATION;
@@ -46,24 +49,30 @@ public class ReferenceClassClassBuilder {
 
 
     private final TypeSpec.Builder               typeBuilder;
-    private final ClassName                      referenceClassClassName;
-    private final Element                        referenceClassElement;
+    private final TypeElement                    referenceClassElement;
     private final Elements                       elementUtils;
+    private final Types                          typeUtils;
     private final LinkedHashMap<Element, String> warnings;
 
 
-    public ReferenceClassClassBuilder(TypeSpec.Builder typeBuilder, ClassName referenceClassClassName,
-                                      Element referenceClassElement, Elements elementUtils) {
+    public ReferenceClassClassBuilder(TypeSpec.Builder typeBuilder, TypeElement referenceClassElement, Elements elementUtils, Types typeUtils) {
         this.typeBuilder = typeBuilder;
-        this.referenceClassClassName = referenceClassClassName;
         this.referenceClassElement = referenceClassElement;
         this.elementUtils = elementUtils;
+        this.typeUtils = typeUtils;
         this.warnings = new LinkedHashMap<>();
     }
 
 
     public ReferenceClassClassBuilder applyClassDefinition() {
-        typeBuilder.addSuperinterface(referenceClassClassName);
+        TypeMirror typeMirror = referenceClassElement.asType();
+        typeBuilder.addSuperinterface(TypeName.get(typeMirror));
+
+        List<? extends TypeParameterElement> typeParameters = referenceClassElement.getTypeParameters();
+
+        for (TypeParameterElement typeParameter : typeParameters) {
+            typeBuilder.addTypeVariable(TypeVariableName.get(typeParameter));
+        }
 
         return this;
     }
@@ -101,7 +110,7 @@ public class ReferenceClassClassBuilder {
 
         CodeBlock.Builder callRealMethodCodeBuilder =
                 CodeBlock.builder()
-                         .addStatement("$T $L = $L()", referenceClassClassName,
+                         .addStatement("$T $L = $L()", referenceClassElement,
                                        VARIABLE_NAME_REAL_IMPLEMENTATION,
                                        METHOD_NAME_GET_REAL_IMPLEMENTATION)
                          .beginControlFlow("if ($L != null)", VARIABLE_NAME_REAL_IMPLEMENTATION);

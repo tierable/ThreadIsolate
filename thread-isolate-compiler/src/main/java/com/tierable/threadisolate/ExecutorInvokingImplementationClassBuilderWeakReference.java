@@ -13,6 +13,7 @@ import com.squareup.javapoet.TypeSpec;
 import java.lang.ref.WeakReference;
 
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 
 
 /**
@@ -30,11 +31,11 @@ public class ExecutorInvokingImplementationClassBuilderWeakReference
 
 
     public ExecutorInvokingImplementationClassBuilderWeakReference(TypeSpec.Builder typeBuilder,
-                                                                   ClassName referenceClass) {
+                                                                   TypeElement referenceClass) {
         super(typeBuilder, referenceClass);
 
         realImplementationType = ParameterizedTypeName.get(
-                CLASS_NAME_WEAK_REFERENCE, referenceClass
+                CLASS_NAME_WEAK_REFERENCE, referenceClassTypeName
         );
     }
 
@@ -56,7 +57,7 @@ public class ExecutorInvokingImplementationClassBuilderWeakReference
                 MethodSpec.methodBuilder(METHOD_NAME_GET_REAL_IMPLEMENTATION)
                           .addAnnotation(Override.class)
                           .addModifiers(Modifier.PUBLIC)
-                          .returns(referenceClassClassName)
+                          .returns(referenceClassTypeName)
                           .addCode(
                                   CodeBlock.builder()
                                            .addStatement("return $L.get()",
@@ -74,7 +75,7 @@ public class ExecutorInvokingImplementationClassBuilderWeakReference
                           .addAnnotation(Override.class)
                           .addModifiers(Modifier.PUBLIC)
                           .addParameter(
-                                  ParameterSpec.builder(referenceClassClassName,
+                                  ParameterSpec.builder(referenceClassTypeName,
                                                         PARAM_NAME_SET_REAL_IMPLEMENTATION_REAL_IMPLEMENTATION)
                                                .build()
                           )
