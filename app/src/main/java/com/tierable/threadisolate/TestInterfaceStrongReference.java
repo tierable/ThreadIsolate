@@ -12,4 +12,7 @@ public interface TestInterfaceStrongReference {
     void methodWithParameters(String stringParam, int intParam);
 
     void method();
+
+    @DontInvokeOnExecutor
+    void methodNotOnExecutor();
 }

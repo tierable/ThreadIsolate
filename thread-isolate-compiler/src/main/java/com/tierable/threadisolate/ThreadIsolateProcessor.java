@@ -9,8 +9,10 @@ import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -25,6 +27,8 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.MirroredTypesException;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
@@ -113,7 +117,6 @@ public class ThreadIsolateProcessor
                                                    .toString()
                                                    .substring(packageName.length() + 1);
 
-                ClassName referenceClass = ClassName.get(packageName, className);
                 String sanitisedTargetClassName = className.replace('.', '$');
                 ClassName generatedClassName = ClassName.get(
                         packageName,
@@ -124,6 +127,18 @@ public class ThreadIsolateProcessor
                 );
                 boolean useWeakReference = invokeMethodsOnExecutorAnnotation.useWeakReference();
 
+
+                List<TypeMirror> excludedSuperTypes;
+                try {
+                    invokeMethodsOnExecutorAnnotation.excludeSuperTypes();
+                    throw new NullPointerException();
+                } catch (MirroredTypesException e) {
+                    List<? extends TypeMirror> typeMirrors = e.getTypeMirrors();
+                    excludedSuperTypes = new ArrayList<>();
+                    for (TypeMirror typeMirror : typeMirrors) {
+                        excludedSuperTypes.add(typeMirror);
+                    }
+                }
 
                 TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(generatedClassName)
                                                        .addModifiers(Modifier.PUBLIC);
@@ -136,7 +151,8 @@ public class ThreadIsolateProcessor
 
 
                 ReferenceClassClassBuilder referenceClassClassBuilder = new ReferenceClassClassBuilder(
-                        typeBuilder, elementAsTypeElement, elementUtils, typeUtils
+                        typeBuilder, elementAsTypeElement, excludedSuperTypes, elementUtils,
+                        typeUtils
                 );
                 referenceClassClassBuilder.applyClassDefinition()
                                           .applyFields()
